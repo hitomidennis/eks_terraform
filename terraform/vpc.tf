@@ -1,29 +1,26 @@
-variable "region" {
-  description = "AWS region"
-  type = string
-  default = "us-east-1"
-}
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+  version = "5.5.2"
 
-variable "clusterName" {
-  description = "Name of the EKS cluster"
-  type = string
-  default = "quizapp-eks"
-}
+  name = "cloudcore-eks-vpc"
+  cidr = "10.20.0.0/16"
 
-variable "ami_id" {
-  description = "AMI ID for the EC2 instance"
-  type        = string
-  default     = "ami-0c7217cdde317cfec" // Replace with the latest AMI ID for your region
-}
+  azs             = slice(data.aws_availability_zones.available.names, 0, 3)
 
-variable "instance_type" {
-  description = "EC2 instance type"
-  type        = string
-  default     = "t2.large"
-}
+  private_subnets = ["10.20.1.0/24", "10.20.2.0/24", "10.20.3.0/24"]
+  public_subnets  = ["10.20.101.0/24", "10.20.102.0/24", "10.20.103.0/24"]
 
-variable "instance_keypair" {
-  description = "AWS EC2 keypair that need to be associated with EC2 instance"
-  type        = string
-  default     = "gitopskey"
+  enable_nat_gateway = true
+  single_nat_gateway = true
+  enable_dns_hostnames = true
+
+  public_subnet_tags = {
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    "kubernetes.io/role/elb" = 1
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    "kubernetes.io/role/internal-elb" = 1
+  }
 }
