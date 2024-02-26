@@ -28,4 +28,3 @@ variable "instance_keypair" {
   default     = "gitopskey"
 }
 
-##
