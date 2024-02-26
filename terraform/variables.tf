@@ -27,3 +27,5 @@ variable "instance_keypair" {
   type        = string
   default     = "gitopskey"
 }
+
+##
